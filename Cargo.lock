@@ -3692,6 +3692,7 @@ version = "1.0.0"
 dependencies = [
  "alloy-sol-types",
  "foundry-macros",
+ "revm",
  "schemars",
  "serde",
  "serde_json",

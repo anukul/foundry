@@ -143,6 +143,28 @@
           "description": "Represents a CREATE2 broadcast tx."
         }
       ]
+    },
+    {
+      "name": "CallKind",
+      "description": "The kind of call to be expected. Used by `expectCall`.",
+      "variants": [
+        {
+          "name": "AnyCall",
+          "description": "Any kind of call."
+        },
+        {
+          "name": "Call",
+          "description": "A standard call."
+        },
+        {
+          "name": "StaticCall",
+          "description": "A static call."
+        },
+        {
+          "name": "DelegateCall",
+          "description": "A delegate call."
+        }
+      ]
     }
   ],
   "structs": [
@@ -4850,6 +4872,46 @@
     },
     {
       "func": {
+        "id": "expectCall_10",
+        "description": "Expect a call to an address with the specified `msg.value`, gas, and calldata.",
+        "declaration": "function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,uint256,uint64,bytes)",
+        "selector": "0x33ff0187",
+        "selectorBytes": [
+          51,
+          255,
+          1,
+          135
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
+        "id": "expectCall_11",
+        "description": "Expects given number of calls to an address with the specified `msg.value`, gas, and calldata.",
+        "declaration": "function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data, uint64 count) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,uint256,uint64,bytes,uint64)",
+        "selector": "0xd11bdc10",
+        "selectorBytes": [
+          209,
+          27,
+          220,
+          16
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
         "id": "expectCall_2",
         "description": "Expects a call to an address with the specified `msg.value` and calldata.",
         "declaration": "function expectCall(address callee, uint256 msgValue, bytes calldata data) external;",
@@ -4922,6 +4984,86 @@
           183,
           183,
           204
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
+        "id": "expectCall_6",
+        "description": "Expects a call to an address with the specified calldata.\nCalldata can either be a strict or a partial match.",
+        "declaration": "function expectCall(CallKind kind, address callee, bytes calldata data) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,bytes)",
+        "selector": "0x5c1a2096",
+        "selectorBytes": [
+          92,
+          26,
+          32,
+          150
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
+        "id": "expectCall_7",
+        "description": "Expects given number of calls to an address with the specified calldata.",
+        "declaration": "function expectCall(CallKind kind, address callee, bytes calldata data, uint64 count) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,bytes,uint64)",
+        "selector": "0xba445c91",
+        "selectorBytes": [
+          186,
+          68,
+          92,
+          145
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
+        "id": "expectCall_8",
+        "description": "Expects a call to an address with the specified `msg.value` and calldata.",
+        "declaration": "function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,uint256,bytes)",
+        "selector": "0xbeb908f0",
+        "selectorBytes": [
+          190,
+          185,
+          8,
+          240
+        ]
+      },
+      "group": "testing",
+      "status": "stable",
+      "safety": "unsafe"
+    },
+    {
+      "func": {
+        "id": "expectCall_9",
+        "description": "Expects given number of calls to an address with the specified `msg.value` and calldata.",
+        "declaration": "function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data, uint64 count) external;",
+        "visibility": "external",
+        "mutability": "",
+        "signature": "expectCall(uint8,address,uint256,bytes,uint64)",
+        "selector": "0x306811ad",
+        "selectorBytes": [
+          48,
+          104,
+          17,
+          173
         ]
       },
       "group": "testing",

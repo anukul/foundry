@@ -37,6 +37,8 @@ pub struct ExpectedCallData {
     pub count: u64,
     /// The type of expected call.
     pub call_type: ExpectedCallType,
+    /// The call kind.
+    pub call_kind: Option<CallKind>,
 }
 
 /// The type of expected call.
@@ -145,21 +147,31 @@ impl CreateScheme {
 impl Cheatcode for expectCall_0Call {
     fn apply(&self, state: &mut Cheatcodes) -> Result {
         let Self { callee, data } = self;
-        expect_call(state, callee, data, None, None, None, 1, ExpectedCallType::NonCount)
+        expect_call(state, None, callee, data, None, None, None, 1, ExpectedCallType::NonCount)
     }
 }
 
 impl Cheatcode for expectCall_1Call {
     fn apply(&self, state: &mut Cheatcodes) -> Result {
         let Self { callee, data, count } = self;
-        expect_call(state, callee, data, None, None, None, *count, ExpectedCallType::Count)
+        expect_call(state, None, callee, data, None, None, None, *count, ExpectedCallType::Count)
     }
 }
 
 impl Cheatcode for expectCall_2Call {
     fn apply(&self, state: &mut Cheatcodes) -> Result {
         let Self { callee, msgValue, data } = self;
-        expect_call(state, callee, data, Some(msgValue), None, None, 1, ExpectedCallType::NonCount)
+        expect_call(
+            state,
+            None,
+            callee,
+            data,
+            Some(msgValue),
+            None,
+            None,
+            1,
+            ExpectedCallType::NonCount,
+        )
     }
 }
 
@@ -168,6 +180,7 @@ impl Cheatcode for expectCall_3Call {
         let Self { callee, msgValue, data, count } = self;
         expect_call(
             state,
+            None,
             callee,
             data,
             Some(msgValue),
@@ -184,6 +197,7 @@ impl Cheatcode for expectCall_4Call {
         let Self { callee, msgValue, gas, data } = self;
         expect_call(
             state,
+            None,
             callee,
             data,
             Some(msgValue),
@@ -200,6 +214,109 @@ impl Cheatcode for expectCall_5Call {
         let Self { callee, msgValue, gas, data, count } = self;
         expect_call(
             state,
+            None,
+            callee,
+            data,
+            Some(msgValue),
+            Some(*gas),
+            None,
+            *count,
+            ExpectedCallType::Count,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_6Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, data } = self;
+        expect_call(
+            state,
+            Some(*kind),
+            callee,
+            data,
+            None,
+            None,
+            None,
+            1,
+            ExpectedCallType::NonCount,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_7Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, data, count } = self;
+        expect_call(
+            state,
+            Some(*kind),
+            callee,
+            data,
+            None,
+            None,
+            None,
+            *count,
+            ExpectedCallType::Count,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_8Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, msgValue, data } = self;
+        expect_call(
+            state,
+            Some(*kind),
+            callee,
+            data,
+            Some(msgValue),
+            None,
+            None,
+            1,
+            ExpectedCallType::NonCount,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_9Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, msgValue, data, count } = self;
+        expect_call(
+            state,
+            Some(*kind),
+            callee,
+            data,
+            Some(msgValue),
+            None,
+            None,
+            *count,
+            ExpectedCallType::Count,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_10Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, msgValue, gas, data } = self;
+        expect_call(
+            state,
+            Some(*kind),
+            callee,
+            data,
+            Some(msgValue),
+            Some(*gas),
+            None,
+            1,
+            ExpectedCallType::NonCount,
+        )
+    }
+}
+
+impl Cheatcode for expectCall_11Call {
+    fn apply(&self, state: &mut Cheatcodes) -> Result {
+        let Self { kind, callee, msgValue, gas, data, count } = self;
+        expect_call(
+            state,
+            Some(*kind),
             callee,
             data,
             Some(msgValue),
@@ -216,6 +333,7 @@ impl Cheatcode for expectCallMinGas_0Call {
         let Self { callee, msgValue, minGas, data } = self;
         expect_call(
             state,
+            None,
             callee,
             data,
             Some(msgValue),
@@ -232,6 +350,7 @@ impl Cheatcode for expectCallMinGas_1Call {
         let Self { callee, msgValue, minGas, data, count } = self;
         expect_call(
             state,
+            None,
             callee,
             data,
             Some(msgValue),
@@ -675,6 +794,7 @@ impl RevertParameters for ExpectedRevert {
 #[expect(clippy::too_many_arguments)] // It is what it is
 fn expect_call(
     state: &mut Cheatcodes,
+    call_kind: Option<CallKind>,
     target: &Address,
     calldata: &Bytes,
     value: Option<&U256>,
@@ -710,7 +830,17 @@ fn expect_call(
             );
             expecteds.insert(
                 calldata.clone(),
-                (ExpectedCallData { value: value.copied(), gas, min_gas, count, call_type }, 0),
+                (
+                    ExpectedCallData {
+                        value: value.copied(),
+                        gas,
+                        min_gas,
+                        count,
+                        call_type,
+                        call_kind,
+                    },
+                    0,
+                ),
             );
         }
         ExpectedCallType::NonCount => {
@@ -729,7 +859,14 @@ fn expect_call(
                 // If it does not exist, then create it.
                 Entry::Vacant(entry) => {
                     entry.insert((
-                        ExpectedCallData { value: value.copied(), gas, min_gas, count, call_type },
+                        ExpectedCallData {
+                            value: value.copied(),
+                            gas,
+                            min_gas,
+                            count,
+                            call_type,
+                            call_kind,
+                        },
                         0,
                     ));
                 }

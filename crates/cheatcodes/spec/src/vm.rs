@@ -6,6 +6,7 @@ use super::*;
 use crate::Vm::ForgeContext;
 use alloy_sol_types::sol;
 use foundry_macros::Cheatcode;
+use revm::interpreter::CallScheme;
 use std::fmt;
 
 sol! {
@@ -37,6 +38,18 @@ interface Vm {
         Prank,
         /// A recurrent prank triggered by a `vm.startPrank()` call is currently active.
         RecurrentPrank,
+    }
+
+    /// The kind of call to be expected. Used by `expectCall`.
+    enum CallKind {
+        /// Any kind of call.
+        AnyCall,
+        /// A standard call.
+        Call,
+        /// A static call.
+        StaticCall,
+        /// A delegate call.
+        DelegateCall,
     }
 
     /// The kind of account access that occurred.
@@ -1004,6 +1017,31 @@ interface Vm {
     #[cheatcode(group = Testing, safety = Unsafe)]
     function expectCallMinGas(address callee, uint256 msgValue, uint64 minGas, bytes calldata data, uint64 count)
         external;
+
+    /// Expects a call to an address with the specified calldata.
+    /// Calldata can either be a strict or a partial match.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, bytes calldata data) external;
+
+    /// Expects given number of calls to an address with the specified calldata.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, bytes calldata data, uint64 count) external;
+
+    /// Expects a call to an address with the specified `msg.value` and calldata.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data) external;
+
+    /// Expects given number of calls to an address with the specified `msg.value` and calldata.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data, uint64 count) external;
+
+    /// Expect a call to an address with the specified `msg.value`, gas, and calldata.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data) external;
+
+    /// Expects given number of calls to an address with the specified `msg.value`, gas, and calldata.
+    #[cheatcode(group = Testing, safety = Unsafe)]
+    function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data, uint64 count) external;
 
     /// Prepare an expected log with (bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData.).
     /// Call this function, then emit an event, then call a function. Internally after the call, we check if
@@ -2778,6 +2816,18 @@ interface Vm {
     #[cheatcode(group = Utilities)]
     function setArbitraryStorage(address target) external;
 }
+}
+
+impl Vm::CallKind {
+    pub fn satisfies(&self, call_scheme: CallScheme) -> bool {
+        matches!(
+            (self, call_scheme),
+            (Self::AnyCall, _) |
+                (Self::Call, CallScheme::Call) |
+                (Self::DelegateCall, CallScheme::DelegateCall) |
+                (Self::StaticCall, CallScheme::StaticCall)
+        )
+    }
 }
 
 impl PartialEq for ForgeContext {

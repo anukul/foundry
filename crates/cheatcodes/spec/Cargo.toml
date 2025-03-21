@@ -18,6 +18,7 @@ workspace = true
 foundry-macros.workspace = true
 alloy-sol-types = { workspace = true, features = ["json"] }
 serde.workspace = true
+revm.workspace = true
 
 # schema
 schemars = { version = "0.8", optional = true }
