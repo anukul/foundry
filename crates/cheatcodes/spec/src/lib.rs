@@ -97,6 +97,7 @@ impl Cheatcodes<'static> {
                 Vm::AccountAccessKind::ENUM.clone(),
                 Vm::ForgeContext::ENUM.clone(),
                 Vm::BroadcastTxType::ENUM.clone(),
+                Vm::CallKind::ENUM.clone(),
             ]),
             errors: Vm::VM_ERRORS.iter().copied().cloned().collect(),
             events: Cow::Borrowed(&[]),

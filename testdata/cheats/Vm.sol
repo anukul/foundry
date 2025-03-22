@@ -10,6 +10,7 @@ interface Vm {
     enum AccountAccessKind { Call, DelegateCall, CallCode, StaticCall, Create, SelfDestruct, Resume, Balance, Extcodesize, Extcodehash, Extcodecopy }
     enum ForgeContext { TestGroup, Test, Coverage, Snapshot, ScriptGroup, ScriptDryRun, ScriptBroadcast, ScriptResume, Unknown }
     enum BroadcastTxType { Call, Create, Create2 }
+    enum CallKind { AnyCall, Call, StaticCall, DelegateCall }
     struct Log { bytes32[] topics; bytes data; address emitter; }
     struct Rpc { string key; string url; }
     struct EthGetLogs { address emitter; bytes32[] topics; bytes data; bytes32 blockHash; uint64 blockNumber; bytes32 transactionHash; uint64 transactionIndex; uint256 logIndex; bool removed; }
@@ -236,10 +237,16 @@ interface Vm {
     function expectCallMinGas(address callee, uint256 msgValue, uint64 minGas, bytes calldata data, uint64 count) external;
     function expectCall(address callee, bytes calldata data) external;
     function expectCall(address callee, bytes calldata data, uint64 count) external;
+    function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data) external;
+    function expectCall(CallKind kind, address callee, uint256 msgValue, uint64 gas, bytes calldata data, uint64 count) external;
     function expectCall(address callee, uint256 msgValue, bytes calldata data) external;
     function expectCall(address callee, uint256 msgValue, bytes calldata data, uint64 count) external;
     function expectCall(address callee, uint256 msgValue, uint64 gas, bytes calldata data) external;
     function expectCall(address callee, uint256 msgValue, uint64 gas, bytes calldata data, uint64 count) external;
+    function expectCall(CallKind kind, address callee, bytes calldata data) external;
+    function expectCall(CallKind kind, address callee, bytes calldata data, uint64 count) external;
+    function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data) external;
+    function expectCall(CallKind kind, address callee, uint256 msgValue, bytes calldata data, uint64 count) external;
     function expectCreate(bytes calldata bytecode, address deployer) external;
     function expectCreate2(bytes calldata bytecode, address deployer) external;
     function expectEmitAnonymous(bool checkTopic0, bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData) external;

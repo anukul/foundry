@@ -969,7 +969,9 @@ where {
                     // The gas matches, if provided
                     expected.gas.is_none_or(|gas| gas == call.gas_limit) &&
                     // The minimum gas matches, if provided
-                    expected.min_gas.is_none_or(|min_gas| min_gas <= call.gas_limit)
+                    expected.min_gas.is_none_or(|min_gas| min_gas <= call.gas_limit &&
+                    // The call kind matches
+                    expected.call_kind.is_none_or(|ck| ck.satisfies(call.scheme)))
                 {
                     *actual_count += 1;
                 }
@@ -1635,7 +1637,8 @@ impl Inspector<&mut dyn DatabaseExt> for Cheatcodes {
                 // Loop over each address, and for each address, loop over each calldata it expects.
                 for (calldata, (expected, actual_count)) in calldatas {
                     // Grab the values we expect to see
-                    let ExpectedCallData { gas, min_gas, value, count, call_type } = expected;
+                    let ExpectedCallData { gas, min_gas, value, count, call_type, call_kind } =
+                        expected;
 
                     let failed = match call_type {
                         // If the cheatcode was called with a `count` argument,
@@ -1650,6 +1653,7 @@ impl Inspector<&mut dyn DatabaseExt> for Cheatcodes {
                     };
                     if failed {
                         let expected_values = [
+                            call_kind.map(|ck| format!("call kind {ck:?}")),
                             Some(format!("data {}", hex::encode_prefixed(calldata))),
                             value.as_ref().map(|v| format!("value {v}")),
                             gas.map(|g| format!("gas {g}")),
